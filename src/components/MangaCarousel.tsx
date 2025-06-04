@@ -123,7 +123,7 @@ const MangaCarousel = () => {
     <div className="min-h-screen bg-black text-white flex flex-col relative">
       {/* Logo no canto superior direito */}
       <img
-        src="src/assets/logo_1.png"
+        src="../assets/logo_1.png"
         alt="Logo Super Onze"
         className="absolute top-2 right-2 w-20 sm:w-24 md:w-28 h-auto z-50"
         style={{ objectFit: "contain" }}
