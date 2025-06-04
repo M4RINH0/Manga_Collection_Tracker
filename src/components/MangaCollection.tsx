@@ -4,6 +4,8 @@ import { ArrowLeft, Moon, Sun, Search, Github, Instagram } from "lucide-react";
 import VolumeCard from "./VolumeCard";
 import VolumeModal from "./VolumeModal";
 import FilterBar from "./FilterBar";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 interface MangaCollectionProps {
   volumes: Volume[];
@@ -36,13 +38,20 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
   };
 
   const toggleOwned = (volumeId: number) => {
-    if (!admin) return; // Só permite se for admin
-    setVolumes(vols =>
-      vols.map(v =>
+    if (!admin) return;
+    setVolumes((vols) => {
+      const updated = vols.map((v) =>
         v.id === volumeId ? { ...v, owned: !v.owned } : v
-      )
-    );
+      );
+      // Salva no Firebase se admin
+      saveCollectionToFirebase("admin-colecao", updated);
+      return updated;
+    });
   };
+
+  async function saveCollectionToFirebase(userId: string, vols: Volume[]) {
+    await setDoc(doc(db, "collections", userId), { volumes: vols });
+  }
 
   const filteredVolumes = volumes.filter(volume => {
     const matchesFilter = filter === 'all' ||

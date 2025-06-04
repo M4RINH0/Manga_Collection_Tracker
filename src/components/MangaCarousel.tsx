@@ -4,6 +4,8 @@ import MangaCollection from "./MangaCollection";
 import { Volume } from 'src/types/Volume.ts';
 import logo from '../assets/logo_1.png';
 import background from '../assets/background_super11.jpeg';
+import { db } from '../firebase';
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const generateVolumes = (): Volume[] =>
   Array.from({ length: 34 }, (_, index) => {
@@ -19,22 +21,9 @@ const generateVolumes = (): Volume[] =>
     };
   });
 
-const STORAGE_KEY = "super11_volumes";
-
 const MangaCarousel = () => {
-  // Carregar do localStorage ou gerar padrão
-  const [volumes, setVolumes] = useState<Volume[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    return generateVolumes();
-  });
-
-  // Salvar no localStorage sempre que volumes mudar
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(volumes));
-  }, [volumes]);
+  // Ajuste o state inicial de volumes para vazio
+  const [volumes, setVolumes] = useState<Volume[]>([]);
 
   const [selectedCollection, setSelectedCollection] = useState(false);
   const [scrollPos, setScrollPos] = useState(0);
@@ -109,6 +98,40 @@ const MangaCarousel = () => {
       alert("Senha incorreta!");
     }
   };
+
+  // Função para salvar coleção no Firestore
+  async function saveCollectionToFirebase(userId: string, volumes: Volume[]) {
+    await setDoc(doc(db, "collections", userId), { volumes });
+  }
+
+  // Função para carregar coleção do Firestore
+  async function loadCollectionFromFirebase(userId: string): Promise<Volume[] | null> {
+    const docSnap = await getDoc(doc(db, "collections", userId));
+    if (docSnap.exists()) {
+      return docSnap.data().volumes;
+    }
+    return null;
+  }
+
+  const [userId] = useState<string>("admin-colecao");
+
+  useEffect(() => {
+    // Carrega do Firebase ao iniciar, se não existir nada, usa generateVolumes() como fallback
+    loadCollectionFromFirebase(userId).then(data => {
+      if (data) {
+        setVolumes(data);
+      } else {
+        setVolumes(generateVolumes());
+      }
+    });
+    // eslint-disable-next-line
+  }, [userId]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      saveCollectionToFirebase(userId, volumes);
+    }
+  }, [volumes, userId, isAdmin]);
 
   if (selectedCollection) {
     return (
