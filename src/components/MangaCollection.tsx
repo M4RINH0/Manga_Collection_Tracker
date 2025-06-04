@@ -1,81 +1,54 @@
-
 import { useState } from "react";
-import { ArrowLeft, Moon, Sun, Filter, Search } from "lucide-react";
+import { Volume } from 'src/types/Volume.ts';
+import { ArrowLeft, Moon, Sun, Search } from "lucide-react";
 import VolumeCard from "./VolumeCard";
 import VolumeModal from "./VolumeModal";
 import FilterBar from "./FilterBar";
 
 interface MangaCollectionProps {
-  seriesId: string;
+  volumes: Volume[];
+  setVolumes: React.Dispatch<React.SetStateAction<Volume[]>>;
   onBack: () => void;
+  isAdmin?: boolean; // NOVO: prop opcional
 }
 
-// Dados dos volumes baseados na série
-const getVolumeData = (seriesId: string) => {
-  const seriesData = {
-    "super-onze": {
-      title: "Super Onze",
-      totalVolumes: 34,
-      volumes: Array.from({ length: 34 }, (_, index) => ({
-        id: index + 1,
-        number: index + 1,
-        title: `Super Onze - Volume ${index + 1}`,
-        owned: Math.random() > 0.3,
-        coverUrl: `https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
-        description: `Volume ${index + 1} da série Super Onze, repleto de ação e aventuras emocionantes no mundo do futebol.`,
-        releaseDate: `202${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
-      }))
-    },
-    "naruto": {
-      title: "Naruto",
-      totalVolumes: 72,
-      volumes: Array.from({ length: 72 }, (_, index) => ({
-        id: index + 1,
-        number: index + 1,
-        title: `Naruto - Volume ${index + 1}`,
-        owned: Math.random() > 0.4,
-        coverUrl: `https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
-        description: `Volume ${index + 1} da série Naruto, acompanhe a jornada do ninja mais determinado.`,
-        releaseDate: `200${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
-      }))
-    },
-    "one-piece": {
-      title: "One Piece",
-      totalVolumes: 105,
-      volumes: Array.from({ length: 105 }, (_, index) => ({
-        id: index + 1,
-        number: index + 1,
-        title: `One Piece - Volume ${index + 1}`,
-        owned: Math.random() > 0.5,
-        coverUrl: `https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
-        description: `Volume ${index + 1} da série One Piece, navegue pelos mares com Luffy e sua tripulação.`,
-        releaseDate: `199${Math.floor(index / 12) + 7}-${String((index % 12) + 1).padStart(2, '0')}-01`
-      }))
-    }
-  };
-
-  return seriesData[seriesId as keyof typeof seriesData] || seriesData["super-onze"];
-};
-
-const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
+const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: MangaCollectionProps) => {
   const [darkMode, setDarkMode] = useState(true);
   const [filter, setFilter] = useState<'all' | 'owned' | 'missing'>('all');
-  const [selectedVolume, setSelectedVolume] = useState<any>(null);
+  const [selectedVolume, setSelectedVolume] = useState<Volume | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const seriesData = getVolumeData(seriesId);
-  const { title, volumes } = seriesData;
+  const [admin, setAdmin] = useState(isAdmin);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle('dark');
   };
 
+  // Função para ativar admin
+  const handleAdminLogin = () => {
+    const senha = prompt("Digite a senha de admin:");
+    if (senha === "dodax123") {
+      setAdmin(true);
+      alert("Modo admin ativado!");
+    } else if (senha !== null) {
+      alert("Senha incorreta!");
+    }
+  };
+
+  const toggleOwned = (volumeId: number) => {
+    if (!admin) return; // Só permite se for admin
+    setVolumes(vols =>
+      vols.map(v =>
+        v.id === volumeId ? { ...v, owned: !v.owned } : v
+      )
+    );
+  };
+
   const filteredVolumes = volumes.filter(volume => {
-    const matchesFilter = filter === 'all' || 
-      (filter === 'owned' && volume.owned) || 
+    const matchesFilter = filter === 'all' ||
+      (filter === 'owned' && volume.owned) ||
       (filter === 'missing' && !volume.owned);
-    
+
     const matchesSearch = volume.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       volume.number.toString().includes(searchTerm);
 
@@ -87,7 +60,7 @@ const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
   return (
-    <div className="min-h-screen bg-dark-gradient transition-all duration-500">
+    <div className="min-h-screen bg-dark-gradient transition-all duration-500 flex flex-col">
       {/* Header */}
       <header className="glass-effect border-b border-crimson-red/30 p-6">
         <div className="max-w-7xl mx-auto">
@@ -102,7 +75,7 @@ const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
               
               <div className="flex flex-col">
                 <h1 className="text-4xl lg:text-5xl font-cyber font-bold text-transparent bg-clip-text bg-fire-gradient animate-glow-red">
-                  {title.toUpperCase()}
+                  SUPER ONZE
                 </h1>
                 <p className="text-lg text-gray-300 mt-2 font-anime">
                   Coleção Digital de Mangás
@@ -150,7 +123,7 @@ const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="max-w-7xl mx-auto p-6 flex-1 w-full">
         {/* Filter Bar */}
         <FilterBar 
           currentFilter={filter} 
@@ -162,12 +135,13 @@ const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
         {/* Volume Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 mt-8">
           {filteredVolumes.map((volume, index) => (
-            <VolumeCard
-              key={volume.id}
-              volume={volume}
-              onClick={() => setSelectedVolume(volume)}
-              animationDelay={index * 0.1}
-            />
+            <div className="relative" key={volume.id}>
+              <VolumeCard
+                volume={volume}
+                onClick={admin ? () => toggleOwned(volume.id) : undefined}
+                animationDelay={index * 0.1}
+              />
+            </div>
           ))}
         </div>
 
@@ -191,6 +165,22 @@ const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
           onClose={() => setSelectedVolume(null)}
         />
       )}
+
+      {/* Rodapé com botão admin */}
+      <footer className="w-full text-center py-2 sm:py-4 bg-black text-gray-500 text-xs border-t border-crimson-red/20 mt-auto flex flex-col items-center gap-2">
+        © {new Date().getFullYear()} Manga Vault - Super Onze
+        {!admin && (
+          <button
+            className="mt-1 px-3 py-1 rounded bg-crimson-red text-white text-xs font-bold hover:bg-red-700 transition"
+            onClick={handleAdminLogin}
+          >
+            Entrar como admin
+          </button>
+        )}
+        {admin && (
+          <span className="text-green-400 text-xs font-bold">Modo admin ativo</span>
+        )}
+      </footer>
     </div>
   );
 };
