@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Play, Plus, Check, Github, Instagram } from "lucide-react";
 import MangaCollection from "./MangaCollection";
 import { Volume } from 'src/types/Volume.ts';
+import logo from '../assets/logo_1.png';
+import background from '../assets/background_super11.jpeg';
 
 const generateVolumes = (): Volume[] =>
   Array.from({ length: 34 }, (_, index) => {
@@ -123,7 +125,7 @@ const MangaCarousel = () => {
     <div className="min-h-screen bg-black text-white flex flex-col relative">
       {/* Logo no canto superior direito */}
       <img
-        src="../assets/logo_1.png"
+        src={logo}
         alt="Logo Super Onze"
         className="absolute top-2 right-2 w-20 sm:w-24 md:w-28 h-auto z-50"
         style={{ objectFit: "contain" }}
@@ -133,7 +135,7 @@ const MangaCarousel = () => {
       <div
         className="relative h-[60vh] sm:h-[70vh] flex items-center justify-start bg-cover bg-center px-3 sm:px-6 pt-20 sm:pt-32"
         style={{
-          backgroundImage: `url(src/assets/background_super11.jpeg)`,
+          backgroundImage: `url(${background})`,
           backgroundPosition: "center 30%"
         }}
       >
