@@ -1,10 +1,10 @@
 
-import MangaCollection from "@/components/MangaCollection";
+import MangaCarousel from "@/components/MangaCarousel";
 
 const Index = () => {
   return (
-    <div className="min-h-screen cyber-gradient dark:bg-cyber-dark">
-      <MangaCollection />
+    <div className="min-h-screen bg-dark-gradient">
+      <MangaCarousel />
     </div>
   );
 };

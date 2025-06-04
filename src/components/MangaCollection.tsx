@@ -1,26 +1,70 @@
 
 import { useState } from "react";
-import { Moon, Sun, Filter, Search } from "lucide-react";
+import { ArrowLeft, Moon, Sun, Filter, Search } from "lucide-react";
 import VolumeCard from "./VolumeCard";
 import VolumeModal from "./VolumeModal";
 import FilterBar from "./FilterBar";
 
-// Dados simulados dos volumes
-const volumes = Array.from({ length: 34 }, (_, index) => ({
-  id: index + 1,
-  number: index + 1,
-  title: `Super Onze - Volume ${index + 1}`,
-  owned: Math.random() > 0.3, // Simula que você possui ~70% dos volumes
-  coverUrl: `https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
-  description: `Volume ${index + 1} da série Super Onze, repleto de ação e aventuras emocionantes no mundo do futebol.`,
-  releaseDate: `202${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
-}));
+interface MangaCollectionProps {
+  seriesId: string;
+  onBack: () => void;
+}
 
-const MangaCollection = () => {
-  const [darkMode, setDarkMode] = useState(false);
+// Dados dos volumes baseados na série
+const getVolumeData = (seriesId: string) => {
+  const seriesData = {
+    "super-onze": {
+      title: "Super Onze",
+      totalVolumes: 34,
+      volumes: Array.from({ length: 34 }, (_, index) => ({
+        id: index + 1,
+        number: index + 1,
+        title: `Super Onze - Volume ${index + 1}`,
+        owned: Math.random() > 0.3,
+        coverUrl: `https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
+        description: `Volume ${index + 1} da série Super Onze, repleto de ação e aventuras emocionantes no mundo do futebol.`,
+        releaseDate: `202${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
+      }))
+    },
+    "naruto": {
+      title: "Naruto",
+      totalVolumes: 72,
+      volumes: Array.from({ length: 72 }, (_, index) => ({
+        id: index + 1,
+        number: index + 1,
+        title: `Naruto - Volume ${index + 1}`,
+        owned: Math.random() > 0.4,
+        coverUrl: `https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
+        description: `Volume ${index + 1} da série Naruto, acompanhe a jornada do ninja mais determinado.`,
+        releaseDate: `200${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
+      }))
+    },
+    "one-piece": {
+      title: "One Piece",
+      totalVolumes: 105,
+      volumes: Array.from({ length: 105 }, (_, index) => ({
+        id: index + 1,
+        number: index + 1,
+        title: `One Piece - Volume ${index + 1}`,
+        owned: Math.random() > 0.5,
+        coverUrl: `https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=300&h=400&fit=crop&auto=format&q=80&${index}`,
+        description: `Volume ${index + 1} da série One Piece, navegue pelos mares com Luffy e sua tripulação.`,
+        releaseDate: `199${Math.floor(index / 12) + 7}-${String((index % 12) + 1).padStart(2, '0')}-01`
+      }))
+    }
+  };
+
+  return seriesData[seriesId as keyof typeof seriesData] || seriesData["super-onze"];
+};
+
+const MangaCollection = ({ seriesId, onBack }: MangaCollectionProps) => {
+  const [darkMode, setDarkMode] = useState(true);
   const [filter, setFilter] = useState<'all' | 'owned' | 'missing'>('all');
-  const [selectedVolume, setSelectedVolume] = useState<typeof volumes[0] | null>(null);
+  const [selectedVolume, setSelectedVolume] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const seriesData = getVolumeData(seriesId);
+  const { title, volumes } = seriesData;
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -43,27 +87,36 @@ const MangaCollection = () => {
   const completionPercentage = Math.round((ownedCount / totalCount) * 100);
 
   return (
-    <div className="min-h-screen transition-all duration-500">
+    <div className="min-h-screen bg-dark-gradient transition-all duration-500">
       {/* Header */}
-      <header className="glass-effect border-b border-white/20 p-6">
+      <header className="glass-effect border-b border-crimson-red/30 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex flex-col">
-              <h1 className="text-4xl lg:text-5xl font-cyber font-bold text-transparent bg-clip-text neon-gradient animate-glow">
-                SUPER ONZE
-              </h1>
-              <p className="text-lg text-gray-300 mt-2 font-anime">
-                Coleção Digital de Mangás
-              </p>
-              <div className="flex items-center gap-4 mt-3">
-                <div className="text-sm text-neon-blue font-medium">
-                  {ownedCount}/{totalCount} volumes ({completionPercentage}%)
-                </div>
-                <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full neon-gradient transition-all duration-500"
-                    style={{ width: `${completionPercentage}%` }}
-                  />
+            <div className="flex items-center gap-4">
+              <button
+                onClick={onBack}
+                className="p-3 glass-effect rounded-xl hover:bg-crimson-red/20 transition-all duration-300 group"
+              >
+                <ArrowLeft className="w-5 h-5 text-crimson-red group-hover:scale-110 transition-transform" />
+              </button>
+              
+              <div className="flex flex-col">
+                <h1 className="text-4xl lg:text-5xl font-cyber font-bold text-transparent bg-clip-text bg-fire-gradient animate-glow-red">
+                  {title.toUpperCase()}
+                </h1>
+                <p className="text-lg text-gray-300 mt-2 font-anime">
+                  Coleção Digital de Mangás
+                </p>
+                <div className="flex items-center gap-4 mt-3">
+                  <div className="text-sm text-crimson-red font-medium">
+                    {ownedCount}/{totalCount} volumes ({completionPercentage}%)
+                  </div>
+                  <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-fire-gradient transition-all duration-500"
+                      style={{ width: `${completionPercentage}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -77,19 +130,19 @@ const MangaCollection = () => {
                   placeholder="Buscar volumes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:border-neon-blue focus:outline-none transition-colors"
+                  className="pl-10 pr-4 py-2 bg-coal-black/50 border border-crimson-red/30 rounded-lg text-white placeholder-gray-400 focus:border-crimson-red focus:outline-none transition-colors"
                 />
               </div>
               
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
-                className="p-3 glass-effect rounded-xl hover:bg-white/20 transition-all duration-300 group"
+                className="p-3 glass-effect rounded-xl hover:bg-crimson-red/20 transition-all duration-300 group"
               >
                 {darkMode ? (
-                  <Sun className="w-5 h-5 text-neon-blue group-hover:rotate-180 transition-transform duration-300" />
+                  <Sun className="w-5 h-5 text-fire-red group-hover:rotate-180 transition-transform duration-300" />
                 ) : (
-                  <Moon className="w-5 h-5 text-neon-purple group-hover:rotate-180 transition-transform duration-300" />
+                  <Moon className="w-5 h-5 text-crimson-red group-hover:rotate-180 transition-transform duration-300" />
                 )}
               </button>
             </div>
