@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Play, Plus, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Plus, Check, Github, Instagram } from "lucide-react";
 import MangaCollection from "./MangaCollection";
 import { Volume } from 'src/types/Volume.ts';
 
@@ -295,19 +295,45 @@ const MangaCarousel = () => {
       </div>
 
       {/* Rodapé simples */}
-      <footer className="w-full text-center py-2 sm:py-4 bg-black text-gray-500 text-xs border-t border-crimson-red/20 mt-auto flex flex-col items-center gap-2">
-        © 2025 Manga Collection Tracker - Douglas Marinho Martins
-        {!isAdmin && (
-          <button
-            className="mt-1 px-3 py-1 rounded bg-crimson-red text-white text-xs font-bold hover:bg-red-700 transition"
-            onClick={handleAdminLogin}
+      <footer className="w-full py-4 bg-black text-gray-500 text-xs border-t border-crimson-red/20 mt-auto flex flex-col sm:flex-row items-center justify-between gap-2 px-4">
+        {/* Centro: texto e botão */}
+        <div className="flex-1 flex flex-col items-center">
+          <div className="text-center font-semibold mb-1">
+            © 2025 Manga Collection Tracker - Douglas Marinho Martins
+          </div>
+          {!isAdmin && (
+            <button
+              className="mt-1 px-3 py-1 rounded bg-crimson-red text-white text-xs font-bold hover:bg-red-700 transition"
+              onClick={handleAdminLogin}
+            >
+              Entrar como admin
+            </button>
+          )}
+          {isAdmin && (
+            <span className="mt-1 text-green-400 text-xs font-bold">Modo admin ativo</span>
+          )}
+        </div>
+        {/* Direita: ícones */}
+        <div className="flex gap-4 items-center mt-3 sm:mt-0">
+          <a
+            href="https://github.com/M4RINH0/Manga_Collection_Tracker"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+            title="GitHub do Projeto"
           >
-            Entrar como admin
-          </button>
-        )}
-        {isAdmin && (
-          <span className="text-green-400 text-xs font-bold">Modo admin ativo</span>
-        )}
+            <Github className="w-5 h-5" />
+          </a>
+          <a
+            href="https://instagram.com/dmmartins_13"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+            title="Instagram"
+          >
+            <Instagram className="w-5 h-5" />
+          </a>
+        </div>
       </footer>
 
       <style>{`
