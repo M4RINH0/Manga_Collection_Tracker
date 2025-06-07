@@ -15,7 +15,7 @@ const generateVolumes = (): Volume[] =>
       number: index + 1,
       title: `Volume ${index + 1}`,
       owned: false,
-      coverUrl: new URL(`../assets/super11/${num}.jpg`, import.meta.url).href,
+      coverUrl: `/images/super11/${num}.jpg`, // <-- Caminho correto para produção
       description: `Volume ${index + 1} da série Super Onze, repleto de ação e aventuras emocionantes no mundo do futebol.`,
       releaseDate: `2010-${String((index % 12) + 1).padStart(2, '0')}-01`
     };
