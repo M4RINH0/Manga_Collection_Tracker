@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { Volume } from 'src/types/Volume.ts';
-import { ArrowLeft, Moon, Sun, Search, Github, Instagram } from "lucide-react";
+import { Volume } from "../types/Volume";
+import { ArrowLeft, Moon, Sun, Search } from "lucide-react";
 import VolumeCard from "./VolumeCard";
 import VolumeModal from "./VolumeModal";
 import FilterBar from "./FilterBar";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-interface MangaCollectionProps {
+interface PokemonCollectionProps {
   volumes: Volume[];
   setVolumes: React.Dispatch<React.SetStateAction<Volume[]>>;
   onBack: () => void;
-  isAdmin?: boolean; // NOVO: prop opcional
+  isAdmin?: boolean;
 }
 
-const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: MangaCollectionProps) => {
+const PokemonCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: PokemonCollectionProps) => {
   const [darkMode, setDarkMode] = useState(true);
   const [filter, setFilter] = useState<'all' | 'owned' | 'missing'>('all');
   const [selectedVolume, setSelectedVolume] = useState<Volume | null>(null);
@@ -26,7 +26,6 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
     document.documentElement.classList.toggle('dark');
   };
 
-  // Função para ativar admin
   const handleAdminLogin = () => {
     const senha = prompt("Digite a senha de admin:");
     if (senha === "dodax123") {
@@ -43,8 +42,7 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
       const updated = vols.map((v) =>
         v.id === volumeId ? { ...v, owned: !v.owned } : v
       );
-      // Salva no Firebase se admin
-      saveCollectionToFirebase("admin-colecao", updated);
+      saveCollectionToFirebase("admin-pokemon", updated);
       return updated;
     });
   };
@@ -54,12 +52,12 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
   }
 
   const filteredVolumes = volumes.filter(volume => {
-    const matchesFilter = filter === 'all' ||
-      (filter === 'owned' && volume.owned) ||
-      (filter === 'missing' && !volume.owned);
+    const matchesFilter = filter === 'all'
+      || (filter === 'owned' && volume.owned)
+      || (filter === 'missing' && !volume.owned);
 
-    const matchesSearch = volume.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      volume.number.toString().includes(searchTerm);
+    const matchesSearch = volume.title.toLowerCase().includes(searchTerm.toLowerCase())
+      || volume.number.toString().includes(searchTerm);
 
     return matchesFilter && matchesSearch;
   });
@@ -81,20 +79,20 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
               >
                 <ArrowLeft className="w-5 h-5 text-crimson-red group-hover:scale-110 transition-transform" />
               </button>
-              
+
               <div className="flex flex-col">
                 <h1 className="text-4xl lg:text-5xl font-cyber font-bold text-transparent bg-clip-text bg-fire-gradient animate-glow-red">
-                  SUPER ONZE
+                  Pokémon Adventures
                 </h1>
                 <p className="text-lg text-gray-300 mt-2 font-anime">
-                  Minha coleção de Super Onze
+                  Minha coleção de Pokémon Adventures
                 </p>
                 <div className="flex items-center gap-4 mt-3">
                   <div className="text-sm text-crimson-red font-medium">
                     {ownedCount}/{totalCount} volumes ({completionPercentage}%)
                   </div>
                   <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-fire-gradient transition-all duration-500"
                       style={{ width: `${completionPercentage}%` }}
                     />
@@ -102,7 +100,7 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Search */}
               <div className="relative">
@@ -115,7 +113,7 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
                   className="pl-10 pr-4 py-2 bg-coal-black/50 border border-crimson-red/30 rounded-lg text-white placeholder-gray-400 focus:border-crimson-red focus:outline-none transition-colors"
                 />
               </div>
-              
+
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
@@ -133,15 +131,13 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
       </header>
 
       <main className="max-w-7xl mx-auto p-6 flex-1 w-full">
-        {/* Filter Bar */}
-        <FilterBar 
-          currentFilter={filter} 
+        <FilterBar
+          currentFilter={filter}
           onFilterChange={setFilter}
           ownedCount={ownedCount}
           missingCount={totalCount - ownedCount}
         />
 
-        {/* Volume Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 mt-8">
           {filteredVolumes.map((volume, index) => (
             <div className="relative" key={volume.id}>
@@ -167,7 +163,6 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
         )}
       </main>
 
-      {/* Modal */}
       {selectedVolume && (
         <VolumeModal
           volume={selectedVolume}
@@ -175,9 +170,7 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
         />
       )}
 
-      {/* Rodapé com botão admin */}
       <footer className="w-full py-4 bg-black text-gray-500 text-xs border-t border-crimson-red/20 mt-auto flex flex-col sm:flex-row items-center justify-between gap-2 px-4">
-        {/* Centro: texto e botão */}
         <div className="flex-1 flex flex-col items-center">
           <div className="text-center font-semibold mb-1">
             © 2025 Manga Collection Tracker - Douglas Marinho Martins
@@ -194,30 +187,9 @@ const MangaCollection = ({ volumes, setVolumes, onBack, isAdmin = false }: Manga
             <span className="mt-1 text-green-400 text-xs font-bold">Modo admin ativo</span>
           )}
         </div>
-        {/* Direita: ícones */}
-        <div className="flex gap-4 items-center mt-3 sm:mt-0">
-          <a
-            href="https://github.com/M4RINH0/Manga_Collection_Tracker"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white transition-colors"
-            title="GitHub do Projeto"
-          >
-            <Github className="w-5 h-5" />
-          </a>
-          <a
-            href="https://instagram.com/dmmartins_13"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white transition-colors"
-            title="Instagram"
-          >
-            <Instagram className="w-5 h-5" />
-          </a>
-        </div>
       </footer>
     </div>
   );
 };
 
-export default MangaCollection;
+export default PokemonCollection;
